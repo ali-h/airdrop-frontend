@@ -101,4 +101,9 @@ $( document ).ready(function() {
     }    
     else setStatus($( "#next_status" ), 'failure', 'Wrong parameters. try again.');
   });
+  $( "#json_body" ).on("shown.bs.collapse", function() {
+    $( "html, body" ).animate({
+      scrollTop: $( "#json_body") .offset().top,
+    }, 500);
+  });
 });
