@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airdrop FrontEnd</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/bignumber.js@8.0.2"></script>
+  <script src="./main.js"></script> 
+</head>
+<body>
+  <div class="container mt-3">
+    <h1>Airdrop FrontEnd</h1>
+    <p>A front-end to use hive-engine airdrops smart contract.</p>
+  </div>
+  <div class="container" id="next_container">
+    <form>
+      <div class="form-group">
+        <label for="symbol" class="mr-sm-2">Symbol:</label>
+        <input type="text" id="symbol" placeholder="Enter Symbol">
+      </div>
+      <div class="form-group">
+        <label for="type" class="mr-sm-2">Distribution Type:</label>
+        <select id="type">
+          <option>Transfer</option>
+          <option>Stake</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="list" class="mr-sm-2">List:</label>
+        <input type="file" id="list_file" accept=".txt,.csv">
+        <p class="text-secondary">Upload file or paste airdrop list below. Only Comma Seperated Values (CSV) are accepted. <a traget="_blank" href="./example.txt">Example</a></p>
+        <textarea class="form-control" rows="8" id="list"></textarea>
+      </div>
+      <button type="button" class="btn btn-primary mb-2" id="next">Next</button>
+      <p id="next_status" class="mb-3"></p>
+    </form>
+  </div>
+  <div class="container d-none" id="confirm_container">
+    <form>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Symbol</span>
+        </div>
+        <input id="symbol_locked" type="text" disabled>
+      </div>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Distribution Type</span>
+        </div>
+        <input id="type_locked" type="text" disabled>
+      </div>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Fee</span>
+        </div>
+        <input id="fee_locked" type="text" disabled>
+      </div>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Total Quantity</span>
+        </div>
+        <input id="quantity_locked" type="text" disabled>
+      </div>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Total Accounts</span>
+        </div>
+        <input id="accounts_locked" type="text" disabled>
+      </div>
+      <div class="form-group">
+        <label for="username" class="mr-sm-2">Username:</label>
+        <input type="text" id="username" placeholder="Enter Username">
+      </div>
+      <p class="text-secondary">
+        Note: In order to initiate airdrop you must have BEE tokens to cover the fee.
+        You must have enough balance of the airdrop token to cover the total quantity.
+        If requirements are not met, your request will be declined.
+        Enter your username and click 'Confirm' to sign transaction via Hive Keychain.
+        After confirmation, you will be informed about the status of your request.
+      </p>
+      <button type="button" class="btn btn-success mb-2" id="confirm">Confirm</button>
+      <button data-toggle="collapse" data-target="#json_body" type="button" class="btn btn-primary mb-2" id="confirm">Show Raw JSON</button>
+      <p id="confirm_status"></p>
+      <div id="json_body" class="card bg-light text-dark collapse mb-3">
+        <pre class="card-body" id="json"></pre>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
