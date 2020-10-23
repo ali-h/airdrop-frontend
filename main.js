@@ -74,7 +74,10 @@ async function getStatus (total_attempts) {
 }
 async function getStatusCallback (callback) {
   setStatus($( "#airdrop_status" ), 'unimportant', 'Attempting to get status from the sidechain...');
-  setTimeout(callback(await getStatus(50)), 1000);
+  $( "html, body" ).animate({
+    scrollTop: $( "#airdrop_status" ).offset().top,
+  }, 500);
+  setTimeout(callback(await getStatus(100)), 1000);
 }
 function isSuccessfull (json) {
   if (json.logs.events && json.logs.events.find(el => el.event === 'newAirdrop')) return true;
@@ -263,7 +266,7 @@ $( document ).ready(function() {
   $( "#result_json_body" ).on("hide.bs.collapse", () => $( "#show_result_json" ).text('Show JSON'));
   $( "#result_json_body" ).on("shown.bs.collapse", function() {
     $( "html, body" ).animate({
-      scrollTop: $( this) .offset().top,
+      scrollTop: $( this ).offset().top,
     }, 500);
   });
   $( "#toggle_result_json" ).click(function() {
