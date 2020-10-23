@@ -31,22 +31,32 @@ function isValidAccountName (name) {
   return true;
 }
 function setStatus (element, type, message) {
-  if (type === 'message') {
-    element.addClass('text-primary')
-    element.removeClass('text-danger')
-    element.removeClass('text-success')
+  if (type === 'unimportant') {
+    element.addClass('text-secondary');
+    element.removeClass('text-danger');
+    element.removeClass('text-primary');
+    element.removeClass('text-success');
+    element.text(message)
+  }
+  else if (type === 'message') {
+    element.addClass('text-primary');
+    element.removeClass('text-secondary');
+    element.removeClass('text-danger');
+    element.removeClass('text-success');
     element.text(message)
   }
   else if (type === 'success') {
-    element.addClass('text-success')
-    element.removeClass('text-danger')
-    element.removeClass('text-primary')
+    element.addClass('text-success');
+    element.removeClass('text-secondary');
+    element.removeClass('text-danger');
+    element.removeClass('text-primary');
     element.text(message)
   }
   else if (type === 'failure') {
-    element.addClass('text-danger')
-    element.removeClass('text-primary')
-    element.removeClass('text-success')
+    element.addClass('text-danger');
+    element.removeClass('text-secondary');
+    element.removeClass('text-primary');
+    element.removeClass('text-success');
     element.text(message)
   }
 }
@@ -61,6 +71,7 @@ $( document ).ready(function() {
     };
   });
   $( "#next" ).click(function() {
+    $( this ).prop("disabled", true);
     const symbol = ( $( "#symbol" ).val() ).toUpperCase();
     const type = $( "#type" ).val();
     const list = $( "#list" ).val();
@@ -109,10 +120,14 @@ $( document ).ready(function() {
       else {
         setStatus($( "#next_status" ), 'failure', 'Error while parsing list, try again.');
         let errors = getErrorText(airdrop.errors);
-        setStatus($( "#error_info" ), 'failure', errors);
+        setStatus($( "#next_error_info" ), 'failure', errors);
+        $( this ).prop("disabled", false);
       }
     }
-    else setStatus($( "#next_status" ), 'failure', 'Wrong parameters. try again.');
+    else {
+      setStatus($( "#next_status" ), 'failure', 'Wrong parameters. try again.');
+      $( this ).prop("disabled", false);
+    }
   });
   $( "#json_body" ).on("show.bs.collapse", () => $( "#show_json" ).text('Hide JSON'));
   $( "#json_body" ).on("hide.bs.collapse", () => $( "#show_json" ).text('Show JSON'));
@@ -140,5 +155,42 @@ $( document ).ready(function() {
     document.execCommand("copy");
     temp.remove();
     $( this ).text("copied");
+  });
+  $( "#confirm" ).click(function() {
+    setStatus($( "#confirm_error_info" ), 'message', '');
+    const username = $( "#username" ).val();
+    if (username && isValidAccountName(username)) {
+      $( this ).prop("disabled", true);
+      try {
+        hive_keychain.requestHandshake(() => {
+          setStatus($( "#confirm_status" ), 'success', 'Now broadcasting...');
+          hive_keychain.requestCustomJson(username,
+            'ssc-mainnet-hive',
+            'Posting',
+            JSON.stringify(json),
+            'Initiate a new Airdrop',
+            ({ error, result, message }) => {
+              if (error) {
+                setStatus($( "#confirm_status" ), 'failure', 'An error occurred, try again.');
+                setStatus($( "#confirm_error_info" ), 'failure', `Err ${error}: ${message}`);
+                $( this ).prop("disabled", false);
+                return;
+              }
+              setStatus($( "#confirm_status" ), 'success', 'Broadcasted Successfully.');
+              setStatus($( "#confirm_error_info" ), 'message',
+                `blockNumber: ${result.block_num}\nid: ${result.id}`);
+              // setStatus($( "#airdrop_status" ), 'unimportant',
+              //   `Now looking for status (${attempt})`);
+            });
+        });
+      }
+      catch(e) {
+        setStatus($( "#confirm_status" ), 'failure', 'Hive Keychain not installed. try again.');
+        $( this ).prop("disabled", false);
+      }
+    }
+    else {
+      setStatus($( "#confirm_status" ), 'failure', 'Invalid username. try again.');
+    }
   });
 });
