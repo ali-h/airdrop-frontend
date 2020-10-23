@@ -7,6 +7,13 @@ let json = {
     "list": [],
   }
 };
+function getErrorText (arr) {
+  let error_text = '';
+  $.each(arr, function (i, { 0:line, 1:text }) {
+    error_text += `Err: Line ${line} at "${text}"\n`;
+  });
+  return error_text;
+}
 function isValidAccountName (name) {
   if (!name) return false;
   if (typeof name !== 'string') return false;
@@ -67,6 +74,7 @@ $( document ).ready(function() {
         list: [],
         fee: 0,
         quantity: 0,
+        errors: [],
         isValid: false,
       };
       const list = $( "#list" ).val().split('\n');
@@ -81,6 +89,7 @@ $( document ).ready(function() {
           ]);
           airdrop.quantity = BigNumber(airdrop.quantity).plus(quantity).toString();
         }
+        else airdrop.errors.push([i + 1, list[i]]);
       }
       airdrop.fee = BigNumber(0.1).times(airdrop.list.length).toString();
       if (list.length > 0 && airdrop.list.length === list.length) airdrop.isValid = true;
@@ -97,13 +106,39 @@ $( document ).ready(function() {
         $( "#accounts_locked" ).val(`${airdrop.list.length}`);
         $( "#json" ).text(JSON.stringify(json, null, '  '));
       }
-      else setStatus($( "#next_status" ), 'failure', 'Error while parsing list, try again.');
-    }    
+      else {
+        setStatus($( "#next_status" ), 'failure', 'Error while parsing list, try again.');
+        let errors = getErrorText(airdrop.errors);
+        setStatus($( "#error_info" ), 'failure', errors);
+      }
+    }
     else setStatus($( "#next_status" ), 'failure', 'Wrong parameters. try again.');
   });
+  $( "#json_body" ).on("show.bs.collapse", () => $( "#show_json" ).text('Hide JSON'));
+  $( "#json_body" ).on("hide.bs.collapse", () => $( "#show_json" ).text('Show JSON'));
   $( "#json_body" ).on("shown.bs.collapse", function() {
     $( "html, body" ).animate({
-      scrollTop: $( "#json_body") .offset().top,
+      scrollTop: $( this) .offset().top,
     }, 500);
+  });
+  $( "#toggle_json" ).click(function() {
+    if ($( this ).text() === 'stringify') {
+      $( "#json" ).text(JSON.stringify(json));
+      $( this ).text("parse");
+    }
+    else if ($( this ).text() === 'parse') {
+      $( "#json" ).text(JSON.stringify(json, null, '  '));
+      $( this ).text("stringify");
+    }
+    $( "#copy_json" ).text("copy");
+  });
+  $( "#copy_json" ).click(function() {
+    const temp = $( "<textarea>" );
+    $( "body" ).append(temp);
+    console.log($( "#json" ).text())
+    temp.val($( "#json" ).text()).select();
+    document.execCommand("copy");
+    temp.remove();
+    $( this ).text("copied");
   });
 });
