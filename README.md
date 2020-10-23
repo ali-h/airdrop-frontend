@@ -1,2 +1,2 @@
 # airdrop-frontend
-A front-end to broadcast on hive-engine airdrops smart contract
+A front-end to use hive-engine airdrops smart contract

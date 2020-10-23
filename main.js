@@ -1,4 +1,4 @@
-const ssc = new SSC('api.hive-engine/rpc');
+const ssc = new SSC('https://api.hive-engine.com/rpc');
 let json = {
   "contractName": "airdrops",
   "contractAction": "newAirdrop",
@@ -8,6 +8,7 @@ let json = {
     "list": [],
   }
 };
+let result_json;
 let id;
 function getErrorText (arr) {
   let error_text = '';
@@ -68,16 +69,40 @@ async function getStatus (total_attempts) {
     if (result) {
       return result;
     }
-    setStatus($( "#airdrop_status" ), 'unimportant',
-      $( "#airdrop_status" ).text() + `Attempting to get status (${attempt + 1})\n`);
   }
   return false;
 }
 async function getStatusCallback (callback) {
-  callback(await getStatus(3));
+  setStatus($( "#airdrop_status" ), 'unimportant', 'Attempting to get status from the sidechain...');
+  setTimeout(callback(await getStatus(50)), 1000);
+}
+function isSuccessfull (json) {
+  if (json.logs.events && json.logs.events.find(el => el.event === 'newAirdrop')) return true;
+  return false;
+}
+function appendSpan (html) {
+  const newSpan = $( "<span>" );
+  newSpan.html(html);
+  $( "#result" ).append(newSpan);
 }
 function proceedToResult (tx) {
-
+  result_json = tx;
+  result_json.logs = JSON.parse(result_json.logs);
+  result_json.payload = JSON.parse(result_json.payload);
+  $( "#result_container" ).removeClass("d-none");
+  $( "#next_container" ).addClass("d-none");
+  $( "#confirm_container" ).addClass("d-none");
+  $( "#result_json" ).text(JSON.stringify(result_json, null, '  '));
+  if (isSuccessfull(result_json)) {
+    $( "#success_msg" ).removeClass('d-none');
+    appendSpan('Status: <code>successfull</code>');
+    appendSpan(`Data: <code>${JSON.stringify(result_json.logs.events[0].data)}</code>`);
+  }
+  else {
+    $( "#fail_msg" ).removeClass('d-none');
+    appendSpan('Status: <code>failed</code>');
+    appendSpan(`Error: <code>${result_json.logs.errors[0]}</code>`);
+  }
 }
 $( document ).ready(function() {
   $( "#list_file" ).change(function() {
@@ -184,7 +209,7 @@ $( document ).ready(function() {
           setStatus($( "#confirm_status" ), 'success', 'Now broadcasting...');
           hive_keychain.requestCustomJson(username,
             'ssc-mainnet-hive',
-            'Posting',
+            'Active',
             JSON.stringify(json),
             'Initiate a new Airdrop',
             ({ error, result, message }) => {
@@ -205,8 +230,7 @@ $( document ).ready(function() {
                 `blockNumber: ${result.block_num}\nid: ${result.id}`);
               getStatusCallback(function(tx) {
                 if (!tx) {
-                  setStatus($( "#airdrop_status" ), 'failure',
-                    $( "#airdrop_status" ).text() + `Failed to get status from the sidechain. try again.\n`);
+                  setStatus($( "#airdrop_status" ), 'failure', 'Failed to get status from the sidechain. try again.');
                   $( "#retry" ).removeClass("d-none");
                   return;
                 }
@@ -228,12 +252,40 @@ $( document ).ready(function() {
     $( this ).addClass("d-none");
     getStatusCallback(function (tx) {
       if (!tx) {
-        setStatus($( "#airdrop_status" ), 'failure',
-          $( "#airdrop_status" ).text() + `Failed to get status from the sidechain. try again.\n`);
+        setStatus($( "#airdrop_status" ), 'failure', 'Failed to get status from the sidechain. try again.');
         $( "#retry" ).removeClass("d-none");
         return;
       }
       proceedToResult(tx);
     });
+  });
+  $( "#result_json_body" ).on("show.bs.collapse", () => $( "#show_result_json" ).text('Hide JSON'));
+  $( "#result_json_body" ).on("hide.bs.collapse", () => $( "#show_result_json" ).text('Show JSON'));
+  $( "#result_json_body" ).on("shown.bs.collapse", function() {
+    $( "html, body" ).animate({
+      scrollTop: $( this) .offset().top,
+    }, 500);
+  });
+  $( "#toggle_result_json" ).click(function() {
+    if ($( this ).text() === 'stringify') {
+      $( "#result_json" ).text(JSON.stringify(result_json));
+      $( this ).text("parse");
+    }
+    else if ($( this ).text() === 'parse') {
+      $( "#result_json" ).text(JSON.stringify(result_json, null, '  '));
+      $( this ).text("stringify");
+    }
+    $( "#copy_result_json" ).text("copy");
+  });
+  $( "#copy_result_json" ).click(function() {
+    const temp = $( "<textarea>" );
+    $( "body" ).append(temp);
+    temp.val($( "#result_json" ).text()).select();
+    document.execCommand("copy");
+    temp.remove();
+    $( this ).text("copied");
+  });
+  $( "#clear" ).click(function () {
+    location.reload(true);
   })
 });
