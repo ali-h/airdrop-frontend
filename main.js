@@ -1,3 +1,4 @@
+const ssc = new SSC('api.hive-engine/rpc');
 let json = {
   "contractName": "airdrops",
   "contractAction": "newAirdrop",
