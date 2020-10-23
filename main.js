@@ -287,5 +287,5 @@ $( document ).ready(function() {
   });
   $( "#clear" ).click(function () {
     location.reload(true);
-  })
+  });
 });
