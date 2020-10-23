@@ -27,18 +27,18 @@
   </div>
   <div class="container" id="next_container">
     <form>
-      <div class="form-inline mb-2">
+      <div class="form-inline mb-3">
         <label for="symbol" class="mr-sm-2">Symbol:</label>
         <input class="form-control" type="text" id="symbol" placeholder="Enter Symbol">
       </div>
-      <div class="form-inline mb-2">
+      <div class="form-inline mb-3">
         <label for="type" class="mr-sm-2">Distribution Type:</label>
         <select class="form-control" id="type">
           <option>Transfer</option>
           <option>Stake</option>
         </select>
       </div>
-      <div class="form-inline mb-2">
+      <div class="form-inline mb-3">
         <label for="list_file" class="mr-sm-2">List:</label>
         <input class="cutom-file" type="file" id="list_file" accept=".txt,.csv">
       </div>
@@ -88,14 +88,14 @@
         <input class="form-control" type="text" id="username" placeholder="Enter Username">
       </div>
       <p class="text-secondary">
-        Note: In order to initiate airdrop you must have BEE tokens to cover the fee.
+        Note: In order to initiate airdrop you must have enough BEE tokens to cover the fee.
         You must have enough balance of the airdrop token to cover the total quantity.
         If requirements are not met, your request will be declined.
         Enter your username and click 'Confirm' to sign transaction via Hive Keychain.
         After confirmation, you will be informed about the status of your request.
       </p>
       <button type="button" class="btn btn-success mb-2" id="confirm">Confirm</button>
-      <button id="show_json" data-toggle="collapse" data-target="#json_body" type="button" class="btn btn-primary mb-2">Show Raw JSON</button>
+      <button id="show_json" data-toggle="collapse" data-target="#json_body" type="button" class="btn btn-primary mb-2">Show JSON</button>
       <p id="confirm_status" class="mb-2"></p>
       <pre id="confirm_error_info" class="mb-2"></pre>
       <pre id="airdrop_status" class="mb-2"></pre>
@@ -108,6 +108,29 @@
         <pre id="json" class="card bg-light text-dark m-0 p-3"></pre>
       </div>
     </form>
+  </div>
+  <div class="container d-none" id="result_container">
+    <p class="text-success mb-2">Successfully retrived status from sidechain.</p>
+    <div id="result" class="card bg-light text-dark mb-3 p-3" style='font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace'></div>
+    <p class="text-secondary d-none" id="success_msg">
+      Note: Your airdrop was successfully initiated.
+      It will start distributing from the next block now.
+      Click 'Show JSON' to see the complete data of transaction on the sidechain.
+    </p>
+    <p class="text-secondary d-none" id="fail_msg">
+      Note: Your airdrop was not successfully initiated.
+      See and correct the error mentioned in 'Data' and try again.
+      Click 'Clear' to start over, 'Show JSON' to see the complete data of transaction on the sidechain.
+    </p>
+    <button id="clear" type="button" class="btn btn-danger mb-2">Clear</button>
+    <button id="show_result_json" data-toggle="collapse" data-target="#result_json_body" type="button" class="btn btn-primary mb-2">Show JSON</button>
+    <div class="bg-light text-dark collapse mb-3 p-0" id="result_json_body">
+      <div class="card-body mb-2 p-0">
+        <a id="toggle_result_json" class="text-secondary mr-2" role="button">stringify</a>
+        <a id="copy_result_json" class="text-secondary" role="button">copy</a>
+      </div>
+      <pre id="result_json" class="card bg-light text-dark m-0 p-3"></pre>
+    </div>
   </div>
 </body>
 </html>
