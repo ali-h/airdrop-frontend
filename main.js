@@ -7,6 +7,7 @@ let json = {
     "list": [],
   }
 };
+let id;
 function getErrorText (arr) {
   let error_text = '';
   $.each(arr, function (i, { 0:line, 1:text }) {
@@ -59,6 +60,23 @@ function setStatus (element, type, message) {
     element.removeClass('text-success');
     element.text(message)
   }
+}
+async function getStatus (total_attempts) {
+  for (let attempt = 0; attempt < total_attempts; attempt += 1) {
+    const result = await ssc.getTransactionInfo(id);
+    if (result) {
+      return result;
+    }
+    setStatus($( "#airdrop_status" ), 'unimportant',
+      $( "#airdrop_status" ).text() + `Attempting to get status (${attempt + 1})\n`);
+  }
+  return false;
+}
+async function getStatusCallback (callback) {
+  callback(await getStatus(3));
+}
+function proceedToResult (tx) {
+
 }
 $( document ).ready(function() {
   $( "#list_file" ).change(function() {
@@ -150,7 +168,6 @@ $( document ).ready(function() {
   $( "#copy_json" ).click(function() {
     const temp = $( "<textarea>" );
     $( "body" ).append(temp);
-    console.log($( "#json" ).text())
     temp.val($( "#json" ).text()).select();
     document.execCommand("copy");
     temp.remove();
@@ -172,15 +189,28 @@ $( document ).ready(function() {
             ({ error, result, message }) => {
               if (error) {
                 setStatus($( "#confirm_status" ), 'failure', 'An error occurred, try again.');
-                setStatus($( "#confirm_error_info" ), 'failure', `Err ${error}: ${message}`);
+                if (typeof error === 'object') {
+                  setStatus($( "#confirm_error_info" ), 'failure', `Err: ${(message.split(': : '))[1]}`);
+                }
+                else {
+                  setStatus($( "#confirm_error_info" ), 'failure', `Err ${error}: ${message}`);
+                }
                 $( this ).prop("disabled", false);
                 return;
               }
+              id = result.id;
               setStatus($( "#confirm_status" ), 'success', 'Broadcasted Successfully.');
               setStatus($( "#confirm_error_info" ), 'message',
                 `blockNumber: ${result.block_num}\nid: ${result.id}`);
-              // setStatus($( "#airdrop_status" ), 'unimportant',
-              //   `Now looking for status (${attempt})`);
+              getStatusCallback(function(tx) {
+                if (!tx) {
+                  setStatus($( "#airdrop_status" ), 'failure',
+                    $( "#airdrop_status" ).text() + `Failed to get status from the sidechain. try again.\n`);
+                  $( "#retry" ).removeClass("d-none");
+                  return;
+                }
+                proceedToResult(tx);
+              });
             });
         });
       }
@@ -193,4 +223,16 @@ $( document ).ready(function() {
       setStatus($( "#confirm_status" ), 'failure', 'Invalid username. try again.');
     }
   });
+  $( "#retry" ).click(function () {
+    $( this ).addClass("d-none");
+    getStatusCallback(function (tx) {
+      if (!tx) {
+        setStatus($( "#airdrop_status" ), 'failure',
+          $( "#airdrop_status" ).text() + `Failed to get status from the sidechain. try again.\n`);
+        $( "#retry" ).removeClass("d-none");
+        return;
+      }
+      proceedToResult(tx);
+    });
+  })
 });
