@@ -44,7 +44,7 @@
       </div>
       <button type="button" class="btn btn-primary mb-2" id="next">Next</button>
       <p id="next_status" class="mb-2"></p>
-      <pre id="error_info" class="text-danger mb-3"></pre>
+      <pre id="next_error_info" class="mb-3"></pre>
     </form>
   </div>
   <div class="container d-none" id="confirm_container">
@@ -79,7 +79,7 @@
         </div>
         <input class="form-control" id="accounts_locked" type="text" disabled>
       </div>
-      <div class="form-group">
+      <div class="form-inline mb-3">
         <label for="username" class="mr-sm-2">Username:</label>
         <input class="form-control" type="text" id="username" placeholder="Enter Username">
       </div>
@@ -92,7 +92,9 @@
       </p>
       <button type="button" class="btn btn-success mb-2" id="confirm">Confirm</button>
       <button id="show_json" data-toggle="collapse" data-target="#json_body" type="button" class="btn btn-primary mb-2">Show Raw JSON</button>
-      <p id="confirm_status"></p>
+      <p id="confirm_status" class="mb-2"></p>
+      <pre id="confirm_error_info" class="mb-2"></pre>
+      <pre id="airdrop_status" class="mb-3"></pre>
       <div class="bg-light text-dark collapse mb-3 p-0" id="json_body">
         <div class="card-body mb-2 p-0">
           <a id="toggle_json" class="text-secondary mr-2" role="button">stringify</a>
