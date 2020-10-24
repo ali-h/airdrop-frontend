@@ -8,6 +8,11 @@ let json = {
     "list": [],
   }
 };
+let spinner_body = $( "<span>" ).addClass("sr-only");
+let spinner = $( "<div>" );
+spinner.addClass("spinner-grow spinner-grow-sm ml-2");
+spinner.prop("role", "status");
+spinner.html(spinner_body);
 let result_json;
 let id;
 function getErrorText (arr) {
@@ -63,21 +68,26 @@ function setStatus (element, type, message) {
     element.text(message)
   }
 }
+async function wait () {
+  return new Promise(back => setTimeout(back, 1000));
+}
 async function getStatus (total_attempts) {
   for (let attempt = 0; attempt < total_attempts; attempt += 1) {
     const result = await ssc.getTransactionInfo(id);
     if (result) {
       return result;
     }
+    await wait();
   }
   return false;
 }
 async function getStatusCallback (callback) {
-  setStatus($( "#airdrop_status" ), 'unimportant', 'Attempting to get status from the sidechain...');
+  setStatus($( "#airdrop_status" ), 'unimportant', 'Attempting to get status from the sidechain');
+  $( "#airdrop_status" ).append(spinner);
   $( "html, body" ).animate({
     scrollTop: $( "#airdrop_status" ).offset().top,
   }, 500);
-  setTimeout(callback(await getStatus(100)), 1000);
+  callback(await getStatus(200));
 }
 function isSuccessfull (json) {
   if (json.logs.events && json.logs.events.find(el => el.event === 'newAirdrop')) return true;
