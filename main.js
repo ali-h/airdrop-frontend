@@ -109,7 +109,7 @@ function proceedToResult (tx) {
   if (isSuccessfull(result_json)) {
     $( "#success_msg" ).removeClass('d-none');
     appendSpan('Status: <code>successfull</code>');
-    appendSpan(`Data: <code>${JSON.stringify(result_json.logs.events[0].data)}</code>`);
+    appendSpan(`Data: <code>${JSON.stringify(result_json.logs.events[0].data, null, ' ')}</code>`);
   }
   else {
     $( "#fail_msg" ).removeClass('d-none');
